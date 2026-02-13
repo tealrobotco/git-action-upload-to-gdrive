@@ -1,4 +1,4 @@
-name: "Upload to Google Drive"
+name: "Google Drive File Upload"
 description: "Upload files to Google Drive using service account credentials with retry logic"
 author: "Teal Robot LLC"
 
