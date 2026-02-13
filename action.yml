@@ -1,6 +1,6 @@
 name: "Upload to Google Drive"
 description: "Upload files to Google Drive using service account credentials with retry logic"
-author: "Tony"
+author: "Teal Robot LLC"
 
 branding:
   icon: "upload-cloud"
