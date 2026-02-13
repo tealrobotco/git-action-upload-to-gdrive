@@ -1,0 +1,94 @@
+name: "Upload to Google Drive"
+description: "Upload files to Google Drive using service account credentials with retry logic"
+author: "Tony"
+
+branding:
+  icon: "upload-cloud"
+  color: "blue"
+
+inputs:
+  credentials:
+    description: "Base64-encoded service account credentials JSON"
+    required: true
+  folder-id:
+    description: "Google Drive folder ID to upload to"
+    required: true
+  filename:
+    description: "Path to the local file to upload to Google Drive"
+    required: true
+  target-name:
+    description: "Name for the file in Google Drive (default: same as local filename)"
+    required: false
+    default: ""
+  max-attempts:
+    description: "Maximum number of upload attempts"
+    required: false
+    default: "10"
+  retry-delay:
+    description: "Delay in seconds between retry attempts"
+    required: false
+    default: "10"
+  verbose:
+    description: "Enable verbose output (true/false)"
+    required: false
+    default: "false"
+  overwrite:
+    description: "Overwrite existing file with same name (true/false)"
+    required: false
+    default: "false"
+
+outputs:
+  file-id:
+    description: "Google Drive file ID of the uploaded file"
+    value: ${{ steps.upload.outputs.file-id }}
+  file-name:
+    description: "Name of the uploaded file in Google Drive"
+    value: ${{ steps.upload.outputs.file-name }}
+
+runs:
+  using: "composite"
+  steps:
+    - name: Setup Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: "3.x"
+
+    - name: Install Dependencies
+      shell: bash
+      run: |
+        pip install google-auth google-auth-oauthlib google-auth-httplib2 google-api-python-client
+
+    - name: Upload to Google Drive
+      id: upload
+      shell: bash
+      env:
+        DRIVE_CREDENTIALS: ${{ inputs.credentials }}
+        DRIVE_FOLDER_ID: ${{ inputs.folder-id }}
+      run: |
+        VERBOSE_FLAG=""
+        if [ "${{ inputs.verbose }}" = "true" ]; then
+          VERBOSE_FLAG="--verbose"
+        fi
+
+        OVERWRITE_FLAG=""
+        if [ "${{ inputs.overwrite }}" = "true" ]; then
+          OVERWRITE_FLAG="--overwrite"
+        fi
+
+        TARGET_NAME_FLAG=""
+        if [ -n "${{ inputs.target-name }}" ]; then
+          TARGET_NAME_FLAG="--target-name ${{ inputs.target-name }}"
+          TARGET_NAME="${{ inputs.target-name }}"
+        else
+          TARGET_NAME=$(basename "${{ inputs.filename }}")
+        fi
+
+        python ${{ github.action_path }}/upload_to_drive.py \
+          --filename "${{ inputs.filename }}" \
+          --max-attempts ${{ inputs.max-attempts }} \
+          --retry-delay ${{ inputs.retry-delay }} \
+          $VERBOSE_FLAG \
+          $OVERWRITE_FLAG \
+          $TARGET_NAME_FLAG
+
+        echo "file-name=$TARGET_NAME" >> $GITHUB_OUTPUT
