@@ -77,7 +77,7 @@ runs:
 
         TARGET_NAME_FLAG=""
         if [ -n "${{ inputs.target-name }}" ]; then
-          TARGET_NAME_FLAG="--target-name \"${{ inputs.target-name }}\""
+          TARGET_NAME_FLAG="--target-name ${{ inputs.target-name }}"
           TARGET_NAME="${{ inputs.target-name }}"
         else
           TARGET_NAME=$(basename "${{ inputs.filename }}")
