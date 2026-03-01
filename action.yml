@@ -77,13 +77,13 @@ runs:
 
         TARGET_NAME_FLAG=""
         if [ -n "${{ inputs.target-name }}" ]; then
-          TARGET_NAME_FLAG="--target-name ${{ inputs.target-name }}"
+          TARGET_NAME_FLAG="--target-name \"${{ inputs.target-name }}\""
           TARGET_NAME="${{ inputs.target-name }}"
         else
           TARGET_NAME=$(basename "${{ inputs.filename }}")
         fi
 
-        python ${{ github.action_path }}/upload_to_drive.py \
+        python "${{ github.action_path }}/upload_to_drive.py" \
           --filename "${{ inputs.filename }}" \
           --max-attempts ${{ inputs.max-attempts }} \
           --retry-delay ${{ inputs.retry-delay }} \
